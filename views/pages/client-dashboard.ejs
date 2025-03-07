@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Dashboard - FreeLanceHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FreeLanceHub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/getstarted">Register</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="/findtalent" id="findTalentDropdown" role="button" 
+                           data-bs-hover="dropdown" aria-expanded="false">
+                            FindTalent
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="findTalentDropdown">
+                            <li><a class="dropdown-item" href="/findtalent/web-development">Web Development</a></li>
+                            <li><a class="dropdown-item" href="/findtalent/mobile-development">Mobile Development</a></li>
+                            <li><a class="dropdown-item" href="/findtalent/ui-ux-design">UI/UX Design</a></li>
+                            <li><a class="dropdown-item" href="/findtalent/graphic-design">Graphic Design</a></li>
+                            <li><a class="dropdown-item" href="/findtalent/content-writing">Content Writing</a></li>
+                            <li><a class="dropdown-item" href="/findtalent/digital-marketing">Digital Marketing</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/findtalent/all">View All Skills</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/findwork">FindWork</a>
+                    </li>
+                </ul>
+                <form class="d-flex mx-2" action="/results" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Welcome Section -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Good afternoon, <%= user.firstName %></h2>
+            <!-- Add this button in an appropriate location in your client dashboard -->
+            <div class="mt-4 mb-4">
+                <a href="/post-job" class="btn btn-primary btn-lg">
+                    <i class="fas fa-plus-circle me-2"></i> Post a New Job
+                </a>
+            </div>
+        </div>
+
+        <!-- Setup Steps Section -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3>Last steps before you can hire</h3>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-credit-card fa-2x text-primary"></i>
+                            </div>
+                            <div>
+                                <h5>Add a billing method</h5>
+                                <p class="mb-0">This can increase your hiring speed by up to 3x</p>
+                                <a href="/billing" class="text-decoration-none">Set up billing</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <h5>Email address verified</h5>
+                                <p class="mb-0">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="fas fa-phone fa-2x text-success"></i>
+                            </div>
+                            <div>
+                                <h5>Phone number verified</h5>
+                                <p class="mb-0">Completed</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Posts Overview -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Overview</h3>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary active">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <% if (message) { %>
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <%= message %>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                
+                <div class="job-posts">
+                    <% if (jobs && jobs.length > 0) { %>
+                        <% jobs.forEach(job => { %>
+                            <div class="job-post p-4 border-bottom">
+                                <div class="d-flex justify-content-between">
+                                    <h4><%= job.title %></h4>
+                                    <div class="dropdown">
+                                        <button class="btn btn-link" type="button" data-bs-toggle="dropdown">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item" href="/edit-job/<%= job.id %>">Edit</a></li>
+                                            <li><a class="dropdown-item text-danger" href="#" onclick="confirmDelete('<%= job.id %>')">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                
+                                <div class="job-details mt-3">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <p class="mb-2">
+                                                <span class="badge <%= job.projectDuration === 'long-term' ? 'bg-primary' : 'bg-success' %>">
+                                                    <%= job.projectDuration === 'long-term' ? 'Long-term' : 'Short-term' %>
+                                                </span>
+                                            </p>
+                                            <p class="mb-2">
+                                                <strong>Budget:</strong> 
+                                                <%= job.budgetType === 'fixed' ? 'Fixed Price' : 'Hourly Rate' %>: 
+                                                $<%= job.budget %>
+                                            </p>
+                                            <p class="mb-2"><strong>Posted:</strong> <%= new Date(job.createdAt).toLocaleDateString() %></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="mb-2"><strong>Status:</strong> <span class="badge bg-info"><%= job.status %></span></p>
+                                            <p class="mb-2"><strong>Client:</strong> <%= job.clientName %></p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>Description</h5>
+                                        <p><%= job.description %></p>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <h5>Skills Required</h5>
+                                        <div>
+                                            <% job.skills.forEach(skill => { %>
+                                                <span class="badge bg-secondary me-1 mb-1"><%= skill %></span>
+                                            <% }) %>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="job-stats d-flex mt-4 pt-3 border-top">
+                                        <div class="me-4">
+                                            <small class="text-muted">Invited</small>
+                                            <p class="mb-0">0</p>
+                                        </div>
+                                        <div class="me-4">
+                                            <small class="text-muted">Proposals</small>
+                                            <p class="mb-0">0</p>
+                                        </div>
+                                        <div class="me-4">
+                                            <small class="text-muted">Messaged</small>
+                                            <p class="mb-0">0</p>
+                                        </div>
+                                        <div>
+                                            <small class="text-muted">Hired</small>
+                                            <p class="mb-0">0</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="fas fa-clipboard-list fa-3x text-muted mb-3"></i>
+                                <h4>No jobs posted yet</h4>
+                                <p class="text-muted">Post your first job to start hiring freelancers</p>
+                                <a href="/post-job" class="btn btn-primary mt-2">
+                                    <i class="fas fa-plus-circle me-2"></i> Post a New Job
+                                </a>
+                            </div>
+                        <% } %>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Bootstrap dropdowns
+        var dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(dropdown => {
+            dropdown.addEventListener('mouseover', function() {
+                this.parentElement.classList.add('show');
+                this.nextElementSibling.classList.add('show');
+            });
+            
+            dropdown.parentElement.addEventListener('mouseleave', function() {
+                this.classList.remove('show');
+                this.querySelector('.dropdown-menu').classList.remove('show');
+            });
+        });
+    });
+</script>
+<script>
+function confirmDelete(jobId) {
+    if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+        window.location.href = '/delete-job/' + jobId;
+    }
+}
+</script>
+</html>

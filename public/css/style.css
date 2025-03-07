@@ -140,3 +140,27 @@
     background-color: #34495e;
     border-color: #34495e;
 }
+/* Client Dashboard Styles */
+.job-post {
+    transition: background-color 0.2s;
+}
+
+.job-post:hover {
+    background-color: #f8f9fa;
+}
+
+.job-stats small {
+    font-size: 0.8rem;
+}
+
+.job-stats p {
+    font-weight: 500;
+}
+
+.nav-link img {
+    border: 2px solid #fff;
+}
+
+.dropdown-toggle::after {
+    vertical-align: middle;
+}

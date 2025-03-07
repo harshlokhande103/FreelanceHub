@@ -45,6 +45,14 @@
                         <a class="nav-link" href="/findwork">FindWork</a>
                     </li>
                 </ul>
+                <form class="d-flex mx-2" action="/results" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </nav>
@@ -71,17 +79,28 @@
                         </div>
 
                         <!-- Registration Form -->
-                        <form id="freelancerForm" action="/register/freelancer" method="POST">
+                        <!-- Add this right after the form heading and before the social login buttons -->
+                        <% if (locals.error) { %>
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <%= error %>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        <% } %>
+                        
+                        <!-- Update the form to preserve entered data on error -->
+                        <form id="freelancerForm" action="/register-freelancer" method="POST">
                             <div class="mb-3">
                                 <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="<%= locals.formData ? formData.name : '' %>" required>
                             </div>
-
+                        
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" name="email" required>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="<%= locals.formData ? formData.email : '' %>" required>
                             </div>
-
+                        
                             <div class="mb-3">
                                 <label for="password" class="form-label">Password</label>
                                 <div class="input-group">
@@ -92,7 +111,7 @@
                                     </button>
                                 </div>
                             </div>
-
+                        
                             <div class="mb-3">
                                 <label for="skills" class="form-label">Skills</label>
                                 <select class="form-control" id="skills" name="skills[]" multiple="multiple">
@@ -110,7 +129,7 @@
                                     <option value="Digital Marketing">Digital Marketing</option>
                                 </select>
                             </div>
-
+                        
                             <button type="submit" class="btn btn-primary w-100">Create Account</button>
                         </form>
 

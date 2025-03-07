@@ -44,6 +44,14 @@
                         <a class="nav-link" href="/findwork">FindWork</a>
                     </li>
                 </ul>
+                <form class="d-flex mx-2" action="/results" method="GET">
+                    <div class="input-group">
+                        <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </nav>
@@ -56,10 +64,10 @@
                         <h2 class="text-center mb-4">Login to FreeLanceHub</h2>
                         <form action="/login" method="POST">
                             <div class="mb-3">
-                                <label for="username" class="form-label">Username</label>
+                                <label for="email" class="form-label">Email</label>
                                 <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
-                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input type="email" class="form-control" id="email" name="email" required>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -69,6 +77,10 @@
                                     <input type="password" class="form-control" id="password" name="password" required>
                                 </div>
                             </div>
+                            <!-- Add error message display -->
+                            <% if (locals.error) { %>
+                                <div class="alert alert-danger"><%= error %></div>
+                            <% } %>
                             <div class="mb-3 form-check">
                                 <input type="checkbox" class="form-check-input" id="remember">
                                 <label class="form-check-label" for="remember">Remember me</label>

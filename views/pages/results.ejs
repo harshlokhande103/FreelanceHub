@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreeLanceHub - Find & Hire Freelancers</title>
+    <title>Search Results - FreeLanceHub</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -44,7 +44,6 @@
                         <a class="nav-link" href="/findwork">FindWork</a>
                     </li>
                 </ul>
-                <!-- Update the search form to submit to /search -->
                 <form class="d-flex mx-2" action="/results" method="GET">
                     <div class="input-group">
                         <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
@@ -57,78 +56,60 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <div class="hero-section py-5">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1>A Portal For Job Hunting.....</h1>
-                    <p>Connect with talented professionals and get your work done</p>
-                    <a href="/getstarted" class="btn btn-primary">Get Started</a>
-                </div>
-                <div class="col-md-6">
-                    <div class="hero-image">
-                        <img src="/images/pexels-photo-3777559.webp" alt="Freelancing Illustration" class="img-fluid">
-                    </div>
-                </div>
+    <div class="container mt-5">
+        <h2>Search Results for "<%= searchQuery %>"</h2>
+        
+        <% if (freelancers.length === 0) { %>
+            <div class="alert alert-info mt-4">
+                No freelancers found with the skill "<%= searchQuery %>". Try searching for a different skill.
             </div>
-        </div>
+        <% } else { %>
+            <p class="text-muted mb-4">Found <%= freelancers.length %> freelancer(s) with this skill</p>
+            
+            <div class="row">
+                <% freelancers.forEach(freelancer => { %>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <img src="https://via.placeholder.com/60" alt="Profile" class="rounded-circle me-3" width="60" height="60">
+                                    <div>
+                                        <h5 class="card-title mb-0"><%= freelancer.name %></h5>
+                                        <p class="text-muted mb-0"><%= freelancer.email %></p>
+                                    </div>
+                                </div>
+                                <h6>Skills:</h6>
+                                <div class="mb-3">
+                                    <% freelancer.skills.forEach(skill => { %>
+                                        <span class="badge bg-primary me-1"><%= skill %></span>
+                                    <% }) %>
+                                </div>
+                                <a href="/freelancer/<%= freelancer.id %>" class="btn btn-outline-primary">View Profile</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        <% } %>
     </div>
 
-    <!-- Popular Categories -->
-    <section class="categories py-5">
-        <div class="container">
-            <h2 class="text-center mb-4">Popular Services</h2>
-            <div class="row">
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>Web Development</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>Graphic Design</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>Digital Marketing</h5>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-3 mb-4">
-                    <div class="card">
-                        <div class="card-body">
-                            <h5>Content Writing</h5>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize Bootstrap dropdowns
-        var dropdowns = document.querySelectorAll('.dropdown-toggle');
-        dropdowns.forEach(dropdown => {
-            dropdown.addEventListener('mouseover', function() {
-                this.parentElement.classList.add('show');
-                this.nextElementSibling.classList.add('show');
-            });
-            
-            dropdown.parentElement.addEventListener('mouseleave', function() {
-                this.classList.remove('show');
-                this.querySelector('.dropdown-menu').classList.remove('show');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Bootstrap dropdowns
+            var dropdowns = document.querySelectorAll('.dropdown-toggle');
+            dropdowns.forEach(dropdown => {
+                dropdown.addEventListener('mouseover', function() {
+                    this.parentElement.classList.add('show');
+                    this.nextElementSibling.classList.add('show');
+                });
+                
+                dropdown.parentElement.addEventListener('mouseleave', function() {
+                    this.classList.remove('show');
+                    this.querySelector('.dropdown-menu').classList.remove('show');
+                });
             });
         });
-    });
-</script>
+    </script>
+</body>
 </html>
