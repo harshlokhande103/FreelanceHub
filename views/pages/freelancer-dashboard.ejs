@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freelancer Dashboard - FreeLanceHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FreeLanceHub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/freelancer-dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/my-proposals">My Proposals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/profile">Profile</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user-circle me-1"></i> <%= user.name %>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="/profile">Profile</a></li>
+                            <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <% if (message) { %>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= message %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <!-- Freelancer Dashboard Header -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1>Welcome, <%= user.name %></h1>
+                <p class="lead">Find jobs that match your skills and start earning</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="/browse-jobs" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i> Browse All Jobs
+                </a>
+            </div>
+        </div>
+
+        <!-- Skills Section -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="mb-0">Your Skills</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap">
+                    <% if (user.skills && user.skills.length > 0) { %>
+                        <% user.skills.forEach(skill => { %>
+                            <span class="badge bg-primary me-2 mb-2 p-2"><%= skill %></span>
+                        <% }) %>
+                    <% } else { %>
+                        <p>No skills added yet. Update your profile to add skills.</p>
+                    <% } %>
+                </div>
+                <div class="mt-3">
+                    <a href="/profile" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-edit me-1"></i> Update Skills
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Jobs Matching Your Skills -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Jobs Matching Your Skills</h3>
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary active">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="btn btn-outline-secondary">
+                        <i class="fas fa-list"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <% if (availableJobs && availableJobs.length > 0) { %>
+                    <% availableJobs.forEach(job => { %>
+                        <div class="job-post p-4 border-bottom">
+                            <div class="d-flex justify-content-between">
+                                <h4><%= job.title %></h4>
+                                <span class="badge <%= job.projectDuration === 'long-term' ? 'bg-primary' : 'bg-success' %>">
+                                    <%= job.projectDuration === 'long-term' ? 'Long-term' : 'Short-term' %>
+                                </span>
+                            </div>
+                            
+                            <div class="job-details mt-3">
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <p class="mb-2">
+                                            <strong>Budget:</strong> 
+                                            <%= job.budgetType === 'fixed' ? 'Fixed Price' : 'Hourly Rate' %>: 
+                                            $<%= job.budget %>
+                                        </p>
+                                        <p class="mb-2"><strong>Posted:</strong> <%= new Date(job.createdAt).toLocaleDateString() %></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p class="mb-2"><strong>Client:</strong> <%= job.clientName %></p>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h5>Description</h5>
+                                    <p><%= job.description %></p>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <h5>Skills Required</h5>
+                                    <div>
+                                        <% job.skills.forEach(skill => { %>
+                                            <span class="badge bg-secondary me-1 mb-1"><%= skill %></span>
+                                        <% }) %>
+                                    </div>
+                                </div>
+                                <!-- Change the Submit Proposal button to Interested for Job -->
+                                <div class="text-end mt-3">
+                                    <a href="/show-interest/<%= job.id %>" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane me-1"></i> Interested for Job
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="text-center py-5">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <h4>No matching jobs found</h4>
+                        <p class="text-muted">We couldn't find any jobs matching your skills at the moment</p>
+                        <a href="/browse-jobs" class="btn btn-primary mt-2">
+                            Browse All Jobs
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

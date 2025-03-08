@@ -101,7 +101,7 @@ app.post('/login', async (req, res) => {
         
         res.render('pages/login', { error: errorMessage });
     }
-});
+}); // Added closing bracket and semicolon for login route
 
 // Add middleware to protect dashboard route
 const requireClientAuth = (req, res, next) => {
@@ -112,13 +112,12 @@ const requireClientAuth = (req, res, next) => {
         return res.redirect('/login');
     }
     next();
-};
+}; // Added closing bracket and semicolon for requireClientAuth
 // Update dashboard route to use middleware and fetch jobs
 app.get('/client-dashboard', requireClientAuth, async (req, res) => {
     try {
         // Get user data from session
         const user = req.session.user;
-        
         // Fetch jobs posted by this client
         const jobsRef = collection(db, 'jobs');
         const q = query(
@@ -126,43 +125,91 @@ app.get('/client-dashboard', requireClientAuth, async (req, res) => {
             where('clientId', '==', user.uid),
             orderBy('createdAt', 'desc')
         );
-        
         const jobsSnapshot = await getDocs(q);
         const jobs = [];
-        
         jobsSnapshot.forEach(doc => {
             jobs.push({
                 id: doc.id,
                 ...doc.data()
             });
         });
-        
+        // Temporarily use a simpler query until the index is created
+        const notificationsRef = collection(db, 'notifications');
+        const notificationQuery = query(
+            notificationsRef,
+            where('clientId', '==', user.uid)
+        );
+        // Note: The mark-notification-read route should be outside this route
+        // This is causing issues with your app structure
+        const notificationsSnapshot = await getDocs(notificationQuery);
+        const notifications = [];
+        notificationsSnapshot.forEach(doc => {
+            const notification = doc.data();
+            // Filter unread notifications in JavaScript instead of in the query
+            if (notification.read === false) {
+                notifications.push({
+                    id: doc.id,
+                    ...notification
+                });
+            }
+        });
+        // Sort notifications by createdAt in JavaScript
+        notifications.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
         res.render('pages/client-dashboard', { 
             user,
             jobs,
+            notifications,
+            notificationCount: notifications.length,
             message: req.query.message || null
         });
     } catch (error) {
         console.error('Dashboard error:', error);
         res.redirect('/login');
     }
-});
-
-// Remove this duplicate client-dashboard route
-// app.get('/client-dashboard', (req, res) => {
-//     // Mock user data - replace with actual user data from your database
-//     const user = {
-//         firstName: 'John',
-//         lastName: 'Doe',
-//         email: 'john@example.com'
-//     };
-//     res.render('pages/client-dashboard', { user: user });
-// });// Add these routes to your app.js
-// Add this route to handle freelancer registration page
-app.get('/register-freelancer', (req, res) => {
-    res.render('pages/register-freelancer');
-});
-
+}); // Added closing bracket and semicolon for client-dashboard route
+// Add middleware to protect freelancer dashboard route
+const requireFreelancerAuth = (req, res, next) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+    if (req.session.user.userType !== 'freelancer') {
+        return res.redirect('/login');
+    }
+    next();
+}; // Added closing bracket and semicolon for requireFreelancerAuth
+// Add route to handle job interest
+app.get('/show-interest/:jobId', requireFreelancerAuth, async (req, res) => {
+    try {
+        const jobId = req.params.jobId;
+        const freelancer = req.session.user;
+        // Get job details
+        const jobDoc = await getDoc(doc(db, 'jobs', jobId));
+        if (!jobDoc.exists()) {
+            return res.redirect('/freelancer-dashboard?message=Job not found');
+        }
+        const jobData = jobDoc.data();
+        const clientId = jobData.clientId;
+        // Create a notification in Firestore
+        const notificationsRef = collection(db, 'notifications');
+        await addDoc(notificationsRef, {
+            type: 'job_interest',
+            jobId: jobId,
+            jobTitle: jobData.title,
+            freelancerId: freelancer.uid,
+            freelancerName: freelancer.name,
+            clientId: clientId,
+            createdAt: new Date().toISOString(),
+            read: false
+        });
+        // Redirect back to dashboard with success message
+        return res.redirect('/freelancer-dashboard?message=Interest shown successfully! The client will be notified.');
+        
+    } catch (error) {
+        console.error('Error showing interest:', error);
+        return res.redirect('/freelancer-dashboard?message=Error showing interest in job');
+    }
+}); // Added closing bracket and semicolon for show-interest route
+// Fix the register-freelancer route
 app.post('/register-freelancer', async (req, res) => {
     try {
         console.log('Form data received:', req.body);
@@ -224,26 +271,8 @@ app.post('/register-freelancer', async (req, res) => {
             formData: req.body
         });
     }
-});// Add this route to handle client dashboard
-// Remove this duplicate client-dashboard route and the nested search route
-app.get('/client-dashboard', (req, res) => {
-    // Mock user data - replace with actual user data from your database
-    const user = {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com'
-    };
-    res.render('pages/client-dashboard', { user: user });
-});// Add this route to display the job posting form
-app.get('/post-job', (req, res) => {
-    // Check if user is logged in
-    if (!req.session.user) {
-        return res.redirect('/login');
-    }
-    res.render('pages/post-job');
-});// Add this route to handle job posting submission
-// Fix the post-job route by properly closing it
-// This route already handles storing job data in Firebase
+}); // Added closing bracket and semicolon for register-freelancer route
+// Fix the post-job route
 app.post('/post-job', async (req, res) => {
     try {
         // Check if user is logged in
@@ -279,9 +308,8 @@ app.post('/post-job', async (req, res) => {
             formData: req.body
         });
     }
-});
-
-// Move this route outside of post-job route
+}); // Added closing bracket and semicolon for post-job route
+// Fix the delete-job route
 app.get('/delete-job/:id', requireClientAuth, async (req, res) => {
     try {
         const jobId = req.params.id;
@@ -306,9 +334,8 @@ app.get('/delete-job/:id', requireClientAuth, async (req, res) => {
         console.error('Error deleting job:', error);
         res.redirect('/client-dashboard?message=Error deleting job');
     }
-});
-
-// Move this route outside of post-job route
+}); // Added closing bracket and semicolon for delete-job route
+// Fix the results route
 app.get('/results', async (req, res) => {
     try {
         const searchQuery = req.query.skill;
@@ -342,10 +369,140 @@ app.get('/results', async (req, res) => {
             error: 'An error occurred while searching. Please try again.'
         });
     }
-});
+}); // Added closing bracket and semicolon for results route
+// Fix the freelancer-login route
+app.post('/freelancer-login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
 
-// Move server listening code outside of any route
+        // Attempt to sign in with Firebase Auth
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        // Get additional user data from Firestore
+        const userDoc = await getDoc(doc(db, 'freelancers', user.uid));
+        
+        if (!userDoc.exists()) {
+            // User not found in freelancers collection
+            await auth.signOut();
+            return res.render('pages/login', { 
+                error: 'Access denied. Please login with a freelancer account.' 
+            });
+        }
+
+        const userData = userDoc.data();
+        
+        // Check if user type is freelancer
+        if (userData.userType !== 'freelancer') {
+            // Wrong user type
+            await auth.signOut();
+            return res.render('pages/login', { 
+                error: 'Access denied. Please login with a freelancer account.' 
+            });
+        }
+
+        // Store user data in session
+        req.session.user = {
+            uid: user.uid,
+            email: user.email,
+            name: userData.name,
+            skills: userData.skills,
+            userType: userData.userType
+        };
+
+        // Redirect to freelancer dashboard
+        res.redirect('/freelancer-dashboard');
+
+    } catch (error) {
+        console.error('Login error:', error);
+        let errorMessage;
+        
+        switch (error.code) {
+            case 'auth/user-not-found':
+                errorMessage = 'No account found with this email.';
+                break;
+            case 'auth/wrong-password':
+                errorMessage = 'Invalid password.';
+                break;
+            case 'auth/invalid-email':
+                errorMessage = 'Invalid email format.';
+                break;
+            default:
+                errorMessage = 'Login failed. Please try again.';
+        }
+        
+        res.render('pages/login', { error: errorMessage });
+    }
+}); // Added closing bracket and semicolon for freelancer-login route
+// Fix the freelancer-dashboard route
+app.get('/freelancer-dashboard', requireFreelancerAuth, async (req, res) => {
+    try {
+        // Get user data from session
+        const user = req.session.user;
+        
+        // Fetch available jobs that match freelancer skills
+        const jobsRef = collection(db, 'jobs');
+        let availableJobs = [];
+        
+        // Get all open jobs
+        const jobsSnapshot = await getDocs(query(jobsRef, where('status', '==', 'open')));
+        
+        jobsSnapshot.forEach(doc => {
+            const job = {
+                id: doc.id,
+                ...doc.data()
+            };
+            
+            // Check if any of the job skills match freelancer skills
+            const hasMatchingSkill = job.skills.some(skill => 
+                user.skills.includes(skill)
+            );
+            
+            if (hasMatchingSkill) {
+                availableJobs.push(job);
+            }
+        });
+        
+        // Render the freelancer dashboard with available jobs
+        res.render('pages/freelancer-dashboard', {
+            user,
+            availableJobs,
+            message: req.query.message || null
+        });
+        
+    } catch (error) {
+        console.error('Dashboard error:', error);
+        res.redirect('/login');
+    }
+}); // Added closing bracket and semicolon for freelancer-dashboard route
+// Move this route outside of the client-dashboard route
+app.get('/mark-notification-read/:id', requireClientAuth, async (req, res) => {
+try {
+const notificationId = req.params.id;
+const notificationRef = doc(db, 'notifications', notificationId);
+
+// Check if notification exists and belongs to this client
+const notificationDoc = await getDoc(notificationRef);
+if (!notificationDoc.exists()) {
+return res.redirect('/client-dashboard?message=Notification not found');
+}
+
+const notificationData = notificationDoc.data();
+if (notificationData.clientId !== req.session.user.uid) {
+return res.redirect('/client-dashboard?message=You do not have permission to access this notification');
+}
+
+// Mark notification as read
+await setDoc(notificationRef, { read: true }, { merge: true });
+
+res.redirect('/client-dashboard?message=Notification marked as read');
+} catch (error) {
+console.error('Error marking notification as read:', error);
+res.redirect('/client-dashboard?message=Error updating notification');
+}
+}); // Added closing bracket and semicolon for mark-notification-read route
+// Fix server listening code outside of any route
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+console.log(`Server is running on port ${PORT}`);
 });

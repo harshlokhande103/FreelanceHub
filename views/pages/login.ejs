@@ -55,44 +55,86 @@
             </div>
         </div>
     </nav>
-
-    <div class="login-section">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-md-6 col-lg-5">
-                    <div class="login-card">
-                        <h2 class="text-center mb-4">Login to FreeLanceHub</h2>
-                        <form action="/login" method="POST">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <div class="input-group">
-                                    <span class="input-group-text"><i class="fas fa-lock"></i></span>
-                                    <input type="password" class="form-control" id="password" name="password" required>
-                                </div>
-                            </div>
-                            <!-- Add error message display -->
-                            <% if (locals.error) { %>
+<!-- Add this to your login.ejs file -->
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" id="loginTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="client-tab" data-bs-toggle="tab" data-bs-target="#client-login" type="button" role="tab">Client Login</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="freelancer-tab" data-bs-toggle="tab" data-bs-target="#freelancer-login" type="button" role="tab">Freelancer Login</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="loginTabsContent">
+                        <!-- Client Login Form -->
+                        <div class="tab-pane fade show active" id="client-login" role="tabpanel">
+                            <h3 class="card-title mb-4">Client Login</h3>
+                            <% if (typeof error !== 'undefined') { %>
                                 <div class="alert alert-danger"><%= error %></div>
                             <% } %>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="remember">
-                                <label class="form-check-label" for="remember">Remember me</label>
+                            <% if (typeof message !== 'undefined') { %>
+                                <div class="alert alert-success"><%= message %></div>
+                            <% } %>
+                            <form action="/login" method="POST">
+                                <!-- Your existing client login form fields -->
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email address</label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" name="password" required>
+                                </div>
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary">Login</button>
+                                </div>
+                            </form>
+                            <div class="mt-3 text-center">
+                                <p>Don't have an account? <a href="/register-client">Register as a Client</a></p>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
-                        </form>
-                        <div class="text-center mt-3">
-                            <a href="/forgot-password" class="text-decoration-none">Forgot Password?</a>
                         </div>
-                        <hr>
-                        <div class="text-center">
-                            <p>Don't have an account? <a href="/getstarted" class="text-decoration-none">Register here</a></p>
+                        
+                        <!-- Freelancer Login Form -->
+                        <div class="tab-pane fade" id="freelancer-login" role="tabpanel">
+                            <h3 class="card-title mb-4">Freelancer Login</h3>
+                            <form action="/freelancer-login" method="POST">
+                                <div class="mb-3">
+                                    <label for="freelancer-email" class="form-label">Email address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                        <input type="email" class="form-control" id="freelancer-email" name="email" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="freelancer-password" class="form-label">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                        <input type="password" class="form-control" id="freelancer-password" name="password" required>
+                                    </div>
+                                </div>
+                                <!-- Add error message display -->
+                                <% if (locals.error) { %>
+                                    <div class="alert alert-danger"><%= error %></div>
+                                <% } %>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="freelancer-remember">
+                                    <label class="form-check-label" for="freelancer-remember">Remember me</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">Login</button>
+                            </form>
+                            <div class="text-center mt-3">
+                                <a href="/forgot-password" class="text-decoration-none">Forgot Password?</a>
+                            </div>
+                            <hr>
+                            <div class="text-center">
+                                <p>Don't have an account? <a href="/getstarted" class="text-decoration-none">Register here</a></p>
+                            </div>
                         </div>
                     </div>
                 </div>
