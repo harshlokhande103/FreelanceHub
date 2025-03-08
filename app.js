@@ -113,15 +113,51 @@ const requireClientAuth = (req, res, next) => {
     }
     next();
 };
+// Update dashboard route to use middleware and fetch jobs
+app.get('/client-dashboard', requireClientAuth, async (req, res) => {
+    try {
+        // Get user data from session
+        const user = req.session.user;
+        
+        // Fetch jobs posted by this client
+        const jobsRef = collection(db, 'jobs');
+        const q = query(
+            jobsRef, 
+            where('clientId', '==', user.uid),
+            orderBy('createdAt', 'desc')
+        );
+        
+        const jobsSnapshot = await getDocs(q);
+        const jobs = [];
+        
+        jobsSnapshot.forEach(doc => {
+            jobs.push({
+                id: doc.id,
+                ...doc.data()
+            });
+        });
+        
+        res.render('pages/client-dashboard', { 
+            user,
+            jobs,
+            message: req.query.message || null
+        });
+    } catch (error) {
+        console.error('Dashboard error:', error);
+        res.redirect('/login');
+    }
+});
 
-// Update dashboard route to use middleware
-app.get('/client-dashboard', requireClientAuth, (req, res) => {
-    res.render('pages/client-dashboard', { 
-        user: req.session.user,
-        message: req.query.message || null,
-        jobs: [] // Add empty jobs array to prevent undefined errors
-    });
-});// Add these routes to your app.js
+// Remove this duplicate client-dashboard route
+// app.get('/client-dashboard', (req, res) => {
+//     // Mock user data - replace with actual user data from your database
+//     const user = {
+//         firstName: 'John',
+//         lastName: 'Doe',
+//         email: 'john@example.com'
+//     };
+//     res.render('pages/client-dashboard', { user: user });
+// });// Add these routes to your app.js
 // Add this route to handle freelancer registration page
 app.get('/register-freelancer', (req, res) => {
     res.render('pages/register-freelancer');
