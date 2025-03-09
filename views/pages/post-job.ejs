@@ -44,7 +44,7 @@
                         <a class="nav-link" href="/findwork">FindWork</a>
                     </li>
                 </ul>
-                <form class="d-flex mx-2" action="/search" method="GET">
+                <form class="d-flex mx-2" action="/results" method="GET">
                     <div class="input-group">
                         <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
                         <button class="btn btn-outline-light" type="submit">
@@ -70,93 +70,70 @@
                             </div>
                         <% } %>
 
+                        <!-- Make sure your form has these fields -->
                         <form action="/post-job" method="POST">
-                            <!-- Step 1: Project Duration -->
-                            <div class="mb-4">
-                                <h5>What type of project is this?</h5>
-                                <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="projectDuration" id="longTerm" value="long-term" required>
-                                    <label class="form-check-label" for="longTerm">
-                                        <strong>Long-term project</strong>
-                                        <p class="text-muted small">Likely to take more than 1 month</p>
-                                    </label>
+                            <!-- Title field -->
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Job Title</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            
+                            <!-- Description field -->
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Job Description</label>
+                                <textarea class="form-control" id="description" name="description" rows="5" required></textarea>
+                            </div>
+                            
+                            <!-- Project Duration -->
+                            <div class="mb-3">
+                                <label class="form-label">Project Duration</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="projectDuration" id="longTerm" value="long-term">
+                                    <label class="form-check-label" for="longTerm">Long-term project</label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="projectDuration" id="shortTerm" value="short-term">
-                                    <label class="form-check-label" for="shortTerm">
-                                        <strong>Short-term project</strong>
-                                        <p class="text-muted small">Less than 1 month to complete</p>
-                                    </label>
+                                    <input class="form-check-input" type="radio" name="projectDuration" id="shortTerm" value="short-term" checked>
+                                    <label class="form-check-label" for="shortTerm">Short-term project</label>
                                 </div>
                             </div>
-
-                            <hr class="my-4">
-
-                            <!-- Step 2: Job Title -->
-                            <div class="mb-4">
-                                <h5>Write a title for your job posting</h5>
-                                <div class="mb-3">
-                                    <input type="text" class="form-control" id="jobTitle" name="jobTitle" 
-                                           placeholder="e.g., Website Developer Needed for E-commerce Site" required>
-                                    <div class="form-text">
-                                        Keep it short and clear. Mention the specific skills or expertise you're looking for.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Step 3: Job Description -->
-                            <div class="mb-4">
-                                <h5>Describe the project in detail</h5>
-                                <textarea class="form-control" id="jobDescription" name="jobDescription" rows="6" 
-                                          placeholder="Describe your project requirements, goals, and any specific skills needed..." required></textarea>
-                                <div class="form-text">
-                                    Be specific about your requirements, timeline, and deliverables.
-                                </div>
-                            </div>
-
-                            <!-- Step 4: Skills Required -->
-                            <div class="mb-4">
-                                <h5>What skills are required?</h5>
-                                <select class="form-control" id="skills" name="skills[]" multiple="multiple" required>
-                                    <option value="HTML">HTML</option>
-                                    <option value="CSS">CSS</option>
+                            
+                            <!-- Skills field -->
+                            <div class="mb-3">
+                                <label for="skills" class="form-label">Required Skills</label>
+                                <select class="form-control" id="skills" name="skills" multiple>
                                     <option value="JavaScript">JavaScript</option>
                                     <option value="React">React</option>
                                     <option value="Node.js">Node.js</option>
-                                    <option value="Python">Python</option>
-                                    <option value="Java">Java</option>
-                                    <option value="PHP">PHP</option>
-                                    <option value="UI/UX">UI/UX Design</option>
-                                    <option value="Graphic Design">Graphic Design</option>
-                                    <option value="Content Writing">Content Writing</option>
-                                    <option value="Digital Marketing">Digital Marketing</option>
+                                    <!-- Other skills options -->
                                 </select>
                             </div>
-
-                            <!-- Step 5: Budget -->
-                            <div class="mb-4">
-                                <h5>What's your budget?</h5>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="mb-3">
-                                            <select class="form-control" id="budgetType" name="budgetType" required>
-                                                <option value="fixed">Fixed price</option>
-                                                <option value="hourly">Hourly rate</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="input-group mb-3">
-                                            <span class="input-group-text">$</span>
-                                            <input type="number" class="form-control" id="budget" name="budget" placeholder="Amount" required>
-                                        </div>
-                                    </div>
+                            
+                            <!-- Budget Type -->
+                            <div class="mb-3">
+                                <label class="form-label">Budget Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="budgetType" id="fixed" value="fixed" checked>
+                                    <label class="form-check-label" for="fixed">Fixed Price</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="budgetType" id="hourly" value="hourly">
+                                    <label class="form-check-label" for="hourly">Hourly Rate</label>
                                 </div>
                             </div>
-
-                            <div class="d-grid gap-2">
-                                <button type="submit" class="btn btn-primary btn-lg">Post Job</button>
+                            
+                            <!-- Budget field -->
+                            <div class="mb-3">
+                                <label for="budget" class="form-label">Budget ($)</label>
+                                <input type="number" class="form-control" id="budget" name="budget">
                             </div>
+                            
+                            <!-- Deadline field -->
+                            <div class="mb-3">
+                                <label for="deadline" class="form-label">Deadline</label>
+                                <input type="date" class="form-control" id="deadline" name="deadline">
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary">Post Job</button>
                         </form>
                     </div>
                 </div>

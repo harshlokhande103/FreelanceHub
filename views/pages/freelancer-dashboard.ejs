@@ -29,15 +29,44 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
+                    <!-- In the navbar section, add this notification dropdown -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle me-1"></i> <%= user.name %>
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <% if (locals.notificationCount && notificationCount > 0) { %>
+                                <span class="badge rounded-pill bg-danger">
+                                    <%= notificationCount %>
+                                </span>
+                            <% } %>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="/profile">Profile</a></li>
-                            <li><a class="dropdown-item" href="/settings">Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 300px; max-height: 400px; overflow-y: auto;">
+                            <% if (locals.notifications && notifications.length > 0) { %>
+                                <% notifications.forEach(notification => { %>
+                                    <li>
+                                        <div class="dropdown-item notification-item">
+                                            <div class="d-flex justify-content-between">
+                                                <strong><%= notification.clientName || 'Client' %></strong>
+                                                <small><%= new Date(notification.createdAt).toLocaleDateString() %></small>
+                                            </div>
+                                            <p class="mb-1"><%= notification.message %></p>
+                                            <div class="d-flex justify-content-between mt-2">
+                                                <a href="/view-client/<%= notification.clientId %>" class="btn btn-sm btn-primary">
+                                                    View Client
+                                                </a>
+                                                <a href="/mark-freelancer-notification-read/<%= notification.id %>" class="btn btn-sm btn-outline-secondary">
+                                                    Mark as Read
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <% if (notifications.indexOf(notification) < notifications.length - 1) { %>
+                                        <li><hr class="dropdown-divider"></li>
+                                    <% } %>
+                                <% }); %>
+                            <% } else { %>
+                                <li><div class="dropdown-item">No new notifications</div></li>
+                            <% } %>
                         </ul>
                     </li>
                 </ul>
