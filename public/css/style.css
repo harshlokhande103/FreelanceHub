@@ -4,9 +4,7 @@
     color: white;
 }
 
-.hero-image {
-    animation: float 6s ease-in-out infinite;
-}
+
 
 @keyframes float {
     0% {
@@ -164,3 +162,8 @@
 .dropdown-toggle::after {
     vertical-align: middle;
 }
+
+/* Find and remove or modify this animation if it exists */
+
+
+
