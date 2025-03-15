@@ -16,7 +16,7 @@
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link active" href="/freelancer-dashboard">Dashboard</a>
@@ -27,7 +27,45 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/profile">Profile</a>
                     </li>
-                </ul>
+                </ul> -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto" style="margin-left: 570px;">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/login">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/getstarted">Register</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="/findtalent" id="findTalentDropdown" role="button" 
+                               data-bs-hover="dropdown" aria-expanded="false">
+                                FindTalent
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="findTalentDropdown">
+                                <li><a class="dropdown-item" href="/findtalent/web-development">Web Development</a></li>
+                                <li><a class="dropdown-item" href="/findtalent/mobile-development">Mobile Development</a></li>
+                                <li><a class="dropdown-item" href="/findtalent/ui-ux-design">UI/UX Design</a></li>
+                                <li><a class="dropdown-item" href="/findtalent/graphic-design">Graphic Design</a></li>
+                                <li><a class="dropdown-item" href="/findtalent/content-writing">Content Writing</a></li>
+                                <li><a class="dropdown-item" href="/findtalent/digital-marketing">Digital Marketing</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/findtalent/all">View All Skills</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/findwork">FindWork</a>
+                        </li>
+                    </ul>
+                    <!-- Update the search form to submit to /search -->
+                    <form class="d-flex mx-2" action="/results" method="GET">
+                        <div class="input-group">
+                            <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
+                            <button class="btn btn-outline-light" type="submit">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
                 <ul class="navbar-nav">
                     <!-- In the navbar section, add this notification dropdown -->
                     <li class="nav-item dropdown">
