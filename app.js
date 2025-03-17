@@ -742,13 +742,6 @@ app.post('/freelancer-login', async (req, res) => {
         res.render('pages/freelancer-login', { error: errorMessage });
     }
 });
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
-
 // Search results route
 app.get('/results', async (req, res) => {
     try {
@@ -800,6 +793,44 @@ app.get('/results', async (req, res) => {
             searchQuery: req.query.skill || '',
             freelancers: [],
             error: 'An error occurred while searching. Please try again.'
+        });
+    }
+});
+
+// Add route to show all freelancers
+app.get('/allfreelancers', async (req, res) => {
+    try {
+        // Query Firestore for all freelancers
+        const freelancersRef = collection(db, 'freelancers');
+        const querySnapshot = await getDocs(freelancersRef);
+        
+        const freelancers = [];
+        querySnapshot.forEach(doc => {
+            const freelancerData = doc.data();
+            
+            // Use the name field directly
+            const name = freelancerData.name || 'Freelancer';
+            
+            freelancers.push({
+                id: doc.id,
+                name: name,
+                title: freelancerData.title || 'Freelancer',
+                skills: freelancerData.skills || [],
+                hourlyRate: freelancerData.hourlyRate || 'Not specified',
+                bio: freelancerData.bio || 'No bio available'
+            });
+        });
+        
+        res.render('pages/results', {
+            searchQuery: 'All Skills',
+            freelancers
+        });
+    } catch (error) {
+        console.error('Error fetching all freelancers:', error);
+        res.render('pages/results', {
+            searchQuery: 'All Skills',
+            freelancers: [],
+            error: 'An error occurred while fetching freelancers. Please try again.'
         });
     }
 });
@@ -863,4 +894,10 @@ app.get('/accept-request/:freelancerId/:notificationId', async (req, res) => {
         console.error('Error accepting freelancer request:', error);
         res.redirect(`/freelancer-profile/${req.params.freelancerId}?message=Error accepting request`);
     }
+});
+
+// Start the server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
