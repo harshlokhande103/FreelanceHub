@@ -741,7 +741,8 @@ app.post('/freelancer-login', async (req, res) => {
         
         res.render('pages/freelancer-login', { error: errorMessage });
     }
-});
+}); // Added closing bracket and semicolon for login route
+
 // Search results route
 app.get('/results', async (req, res) => {
     try {
