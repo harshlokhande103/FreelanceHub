@@ -902,3 +902,84 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
+
+// All Jobs Route
+app.get('/all-jobs', async (req, res) => {
+    try {
+        // Get query parameters for filtering
+        const { search, category } = req.query;
+        
+        // Reference to jobs collection
+        const jobsRef = collection(db, 'jobs');
+        let jobsQuery = jobsRef;
+        
+        // Apply category filter if provided
+        if (category) {
+            jobsQuery = query(jobsRef, where('category', '==', category));
+        }
+        
+        // Get jobs
+        const jobsSnapshot = await getDocs(jobsQuery);
+        let allJobs = [];
+        
+        // Process each job
+        for (const docSnapshot of jobsSnapshot.docs) {
+            const jobData = docSnapshot.data();
+            
+            // Get client details
+            let clientName = 'Unknown Client';
+            let clientCompany = '';
+            
+            if (jobData.clientId) {
+                const clientDocRef = doc(db, 'clients', jobData.clientId);
+                const clientDoc = await getDoc(clientDocRef);
+                if (clientDoc.exists()) {
+                    const clientData = clientDoc.data();
+                    clientName = clientData.name || 'Unknown Client';
+                    clientCompany = clientData.company || '';
+                }
+            }
+            
+            // Add job to array with client details
+            allJobs.push({
+                id: docSnapshot.id,
+                ...jobData,
+                clientName,
+                clientCompany,
+                createdAt: jobData.createdAt || new Date().toISOString()
+            });
+        }
+        
+        // Apply search filter if provided
+        if (search) {
+            const searchLower = search.toLowerCase();
+            allJobs = allJobs.filter(job => 
+                (job.title && job.title.toLowerCase().includes(searchLower)) ||
+                (job.description && job.description.toLowerCase().includes(searchLower)) ||
+                (job.category && job.category.toLowerCase().includes(searchLower)) ||
+                (job.clientName && job.clientName.toLowerCase().includes(searchLower)) ||
+                (job.clientCompany && job.clientCompany.toLowerCase().includes(searchLower))
+            );
+        }
+        
+        // Sort jobs by creation date (newest first)
+        allJobs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        
+        // Render the all-jobs page
+        res.render('pages/all-jobs', {
+            user: req.session.user,
+            jobs: allJobs
+        });
+    } catch (error) {
+        console.error('Error fetching jobs:', error);
+        // Check if the error template exists, if not redirect to home
+        try {
+            res.status(500).render('pages/error', { 
+                error: 'Failed to load jobs. Please try again later.' 
+            });
+        } catch (renderError) {
+            // If error template doesn't exist, redirect to home with error message
+            res.redirect('/?error=Failed to load jobs. Please try again later.');
+        }
+    }
+});
