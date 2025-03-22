@@ -897,9 +897,23 @@ app.get('/accept-request/:freelancerId/:notificationId', async (req, res) => {
     }
 });
 
+// Initialize HTTP server and Socket.IO
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+
+// Socket.IO connection handling
+io.on('connection', (socket) => {
+    console.log('A user connected');
+    
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+});
+
 // Start the server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
