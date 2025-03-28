@@ -24,6 +24,17 @@ socket.on('newNotification', (notification) => {
     addNotificationToDropdown(notification);
 });
 
+// Add this new socket listener for message notifications
+socket.on('newMessageNotification', (data) => {
+    // Only show notification if current user is the freelancer
+    const currentUserId = document.body.getAttribute('data-user-id');
+    if (currentUserId === data.freelancerId) {
+        console.log('New message notification received:', data);
+        updateMessageNotificationCount();
+        addMessageNotificationToDropdown(data);
+    }
+});
+
 // Helper functions
 function addJobToPage(job) {
     const jobsContainer = document.querySelector('.job-posts');
@@ -121,4 +132,49 @@ function addNotificationToDropdown(notification) {
     }
 
     dropdownMenu.insertAdjacentHTML('afterbegin', notificationHtml);
+}
+
+function updateMessageNotificationCount() {
+    const badge = document.querySelector('#messageNotificationBadge');
+    if (badge) {
+        const currentCount = parseInt(badge.textContent) || 0;
+        badge.textContent = currentCount + 1;
+        badge.style.display = 'inline';
+    }
+}
+
+function addMessageNotificationToDropdown(data) {
+    const dropdownMenu = document.querySelector('#messageNotificationsDropdown');
+    if (!dropdownMenu) return;
+
+    const notificationHtml = `
+        <li>
+            <a class="dropdown-item" href="/freelancer-messaging/${data.clientId}">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <p class="mb-0"><strong>New message</strong></p>
+                        <p class="mb-0 small text-muted">${data.message}</p>
+                        <small class="text-muted">${new Date(data.timestamp).toLocaleTimeString()}</small>
+                    </div>
+                </div>
+            </a>
+        </li>
+    `;
+
+    // Remove 'no messages' item if it exists
+    const noMessagesItem = dropdownMenu.querySelector('.no-messages');
+    if (noMessagesItem) {
+        noMessagesItem.remove();
+    }
+
+    // Add divider if there are other notifications
+    if (dropdownMenu.children.length > 0) {
+        dropdownMenu.insertAdjacentHTML('afterbegin', '<li><hr class="dropdown-divider"></li>');
+    }
+
+    dropdownMenu.insertAdjacentHTML('afterbegin', notificationHtml);
+
+    // Play notification sound
+    const audio = new Audio('/sounds/notification.mp3');
+    audio.play();
 }

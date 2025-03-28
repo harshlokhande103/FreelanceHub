@@ -29,7 +29,7 @@
                     </li>
                 </ul> -->
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav me-auto" style="margin-left: 570px;">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
                             <a class="nav-link" href="/login">Login</a>
                         </li>
@@ -55,56 +55,80 @@
                         <li class="nav-item">
                             <a class="nav-link" href="/findwork">FindWork</a>
                         </li>
+                        <li class="nav-item">
+                            <form class="d-flex" action="/results" method="GET">
+                                <div class="input-group">
+                                    <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
+                                    <button class="btn btn-outline-light" type="submit">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </li>
                     </ul>
-                    <!-- Update the search form to submit to /search -->
-                    <form class="d-flex mx-2" action="/results" method="GET">
-                        <div class="input-group">
-                            <input class="form-control" type="search" name="skill" placeholder="Search skills..." aria-label="Search">
-                            <button class="btn btn-outline-light" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </form>
                 </div>
                 <ul class="navbar-nav">
-                    <!-- In the navbar section, add this notification dropdown -->
-                    <li class="nav-item dropdown">
+                    <!-- Notification Bell for Request Notifications Only -->
+                    <li class="nav-item dropdown ms-2">
                         <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" 
                            data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell"></i>
-                            <% if (locals.notificationCount && notificationCount > 0) { %>
-                                <span class="badge rounded-pill bg-danger">
-                                    <%= notificationCount %>
-                                </span>
-                            <% } %>
+                            <span id="notificationBadge" class="badge rounded-pill bg-danger" style="display: none;">0</span>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" style="width: 300px; max-height: 400px; overflow-y: auto;">
-                            <% if (locals.notifications && notifications.length > 0) { %>
-                                <% notifications.forEach(notification => { %>
-                                    <li>
-                                        <div class="dropdown-item notification-item">
-                                            <div class="d-flex justify-content-between">
-                                                <strong><%= notification.clientName || 'Client' %></strong>
-                                                <small><%= new Date(notification.createdAt).toLocaleDateString() %></small>
-                                            </div>
-                                            <p class="mb-1"><%= notification.message %></p>
-                                            <div class="d-flex justify-content-between mt-2">
-                                                <a href="/view-client/<%= notification.clientId %>" class="btn btn-sm btn-primary">
-                                                    View Client
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationDropdown" 
+                            style="width: 300px; max-height: 400px; overflow-y: auto;">
+                            <div id="notificationList">
+                                <% if (locals.requestNotifications && requestNotifications.length > 0) { %>
+                                    <% requestNotifications.forEach(notification => { %>
+                                        <% if (notification.type === 'request_accepted') { %>
+                                            <li>
+                                                <div class="dropdown-item notification-item">
+                                                    <div class="d-flex justify-content-between">
+                                                        <strong>Request Accepted</strong>
+                                                        <small><%= new Date(notification.createdAt).toLocaleDateString() %></small>
+                                                    </div>
+                                                    <p class="mb-1"><%= notification.message %></p>
+                                                </div>
+                                            </li>
+                                            <li><hr class="dropdown-divider"></li>
+                                        <% } %>
+                                    <% }); %>
+                                <% } else { %>
+                                    <li><div class="dropdown-item">No new notifications</div></li>
+                                <% } %>
+                            </div>
+                        </ul>
+                    </li>
+                    <!-- Message Icon for Chat Notifications -->
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-envelope"></i>
+                            <span id="messageNotificationBadge" class="badge rounded-pill bg-danger" style="display: none;">0</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="messageDropdown" 
+                            style="width: 300px; max-height: 400px; overflow-y: auto;">
+                            <div id="messageList">
+                                <% if (locals.messages && messages.length > 0) { %>
+                                    <% messages.forEach(message => { %>
+                                        <li>
+                                            <div class="dropdown-item message-item">
+                                                <div class="d-flex justify-content-between">
+                                                    <strong><%= message.senderName || 'Client' %></strong>
+                                                    <small><%= new Date(message.timestamp).toLocaleDateString() %></small>
+                                                </div>
+                                                <p class="mb-1"><%= message.content %></p>
+                                                <a href="/chat/<%= message.clientId %>" class="btn btn-sm btn-primary mt-2 open-chat">
+                                                    Open Chat
                                                 </a>
-                                                <a href="/mark-freelancer-notification-read/<%= notification.id %>" class="btn btn-sm btn-outline-secondary">
-                                                    Mark as Read
-                                                </a>
                                             </div>
-                                        </div>
-                                    </li>
-                                    <% if (notifications.indexOf(notification) < notifications.length - 1) { %>
+                                        </li>
                                         <li><hr class="dropdown-divider"></li>
-                                    <% } %>
-                                <% }); %>
-                            <% } else { %>
-                                <li><div class="dropdown-item">No new notifications</div></li>
-                            <% } %>
+                                    <% }); %>
+                                <% } else { %>
+                                    <li><div class="dropdown-item">No new messages</div></li>
+                                <% } %>
+                            </div>
                         </ul>
                     </li>
                     <!-- Add logout button -->
@@ -239,5 +263,124 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Socket.IO client library -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        
+        // Listen for notifications
+        socket.on('newNotification', (data) => {
+            const currentFreelancerId = '<%= user.uid %>';
+            if (data.freelancerId === currentFreelancerId) {
+                if (data.type === 'request_accepted') {
+                    // Handle request acceptance notification
+                    updateNotificationBadge();
+                    addRequestNotification(data);
+                } else if (data.type === 'new_message') {
+                    // Handle message notification
+                    updateMessageBadge();
+                    addMessageToDropdown(data);
+                }
+            }
+        });
+
+        // Function to update notification badge for requests
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            if (badge) {
+                const currentCount = parseInt(badge.textContent || '0');
+                badge.textContent = currentCount + 1;
+                badge.style.display = 'inline';
+            }
+        }
+
+        // Function to update message badge
+        function updateMessageBadge() {
+            const badge = document.getElementById('messageNotificationBadge');
+            if (badge) {
+                const currentCount = parseInt(badge.textContent || '0');
+                badge.textContent = currentCount + 1;
+                badge.style.display = 'inline';
+            }
+        }
+
+        // Function to add request notification
+        function addRequestNotification(data) {
+            const notificationList = document.getElementById('notificationList');
+            if (!notificationList) return;
+
+            const newNotification = `
+                <li>
+                    <div class="dropdown-item notification-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>Request Accepted</strong>
+                            <small>${new Date(data.timestamp).toLocaleDateString()}</small>
+                        </div>
+                        <p class="mb-1">${data.message}</p>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+            `;
+
+            notificationList.insertAdjacentHTML('afterbegin', newNotification);
+        }
+
+        // Function to add message to dropdown
+        function addMessageToDropdown(data) {
+            const messageList = document.getElementById('messageList');
+            if (!messageList) return;
+
+            // Remove "No new messages" if it exists
+            const noMessages = messageList.querySelector('.dropdown-item');
+            if (noMessages && noMessages.textContent === 'No new messages') {
+                noMessages.remove();
+            }
+
+            const newMessage = `
+                <li>
+                    <div class="dropdown-item message-item">
+                        <div class="d-flex justify-content-between">
+                            <strong>${data.senderName || 'Client'}</strong>
+                            <small>${new Date(data.timestamp).toLocaleDateString()}</small>
+                        </div>
+                        <p class="mb-1">${data.message}</p>
+                        <a href="/freelancer-messaging/${data.clientId}" class="btn btn-sm btn-primary mt-2 open-chat">
+                            Open Chat
+                        </a>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+            `;
+
+            messageList.insertAdjacentHTML('afterbegin', newMessage);
+        }
+
+        // Add event listener for chat buttons
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('open-chat') || e.target.closest('.open-chat')) {
+                const chatLink = e.target.closest('a');
+                if (chatLink) {
+                    e.preventDefault();
+                    window.location.href = chatLink.href;
+                }
+            }
+        });
+
+        // Update socket listener for new messages
+        socket.on('newNotification', (data) => {
+            if (data.type === 'new_message') {
+                const currentFreelancerId = '<%= user.uid %>';
+                if (data.freelancerId === currentFreelancerId) {
+                    updateMessageBadge();
+                    addMessageToDropdown({
+                        clientId: data.senderId,
+                        senderName: data.senderName,
+                        message: data.message,
+                        timestamp: data.timestamp
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

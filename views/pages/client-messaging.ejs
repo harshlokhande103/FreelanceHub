@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Freelancer - FreeLanceHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .chat-container {
+            height: 70vh;
+            overflow-y: auto;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .message-sent {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+        .message-received {
+            background-color: #e9ecef;
+            margin-right: auto;
+        }
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FreeLanceHub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/client-dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" 
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <%= user.firstName %> <%= user.lastName %>
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+                            <li><a class="dropdown-item" href="/profile">My Profile</a></li>
+                            <li><a class="dropdown-item" href="/settings">Settings</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">Chat with <%= freelancer.name %></h5>
+                    <small><%= freelancer.title || 'Freelancer' %></small>
+                </div>
+            </div>
+            <div class="card-body chat-container" id="chatContainer">
+                <!-- Messages will be dynamically added here -->
+            </div>
+            <div class="card-footer">
+                <form id="messageForm" class="d-flex gap-2">
+                    <input type="hidden" id="freelancerId" value="<%= freelancer.id %>">
+                    <input type="text" id="messageInput" class="form-control" placeholder="Type your message..." required>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const chatContainer = document.getElementById('chatContainer');
+        const messageForm = document.getElementById('messageForm');
+        const messageInput = document.getElementById('messageInput');
+        const freelancerId = document.getElementById('freelancerId').value;
+        const clientId = '<%= user.id %>';
+        const clientName = '<%= user.firstName %> <%= user.lastName %>';
+
+        // Join chat room
+        socket.emit('joinRoom', { clientId, freelancerId });
+
+        // Handle form submission
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const message = messageInput.value.trim();
+            if (message) {
+                // Emit message to server
+                socket.emit('clientMessage', {
+                    clientId,
+                    freelancerId,
+                    message,
+                    clientName,
+                    type: 'chat',
+                    timestamp: new Date().toISOString()
+                });
+
+                // Send notification to freelancer
+                socket.emit('newMessageNotification', {
+                    freelancerId,
+                    clientId,
+                    message: message,
+                    from: clientName,
+                    type: 'message',
+                    timestamp: new Date().toISOString()
+                });
+
+                // Add message to chat
+                addMessage(message, true);
+                messageInput.value = '';
+            }
+        });
+
+        // Listen for messages
+        socket.on('message', (data) => {
+            addMessage(data.message, data.sender === 'client');
+        });
+
+        function addMessage(message, isSent) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'message-sent' : 'message-received'}`;
+            
+            const messageText = document.createElement('div');
+            messageText.textContent = message;
+            
+            const timeDiv = document.createElement('div');
+            timeDiv.className = 'message-time';
+            timeDiv.textContent = new Date().toLocaleTimeString();
+            
+            messageDiv.appendChild(messageText);
+            messageDiv.appendChild(timeDiv);
+            chatContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>

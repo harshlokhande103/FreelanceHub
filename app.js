@@ -836,6 +836,35 @@ app.get('/allfreelancers', async (req, res) => {
     }
 });
 
+// Message freelancer route
+app.get('/message-freelancer/:freelancerId', async (req, res) => {
+    try {
+        if (!req.session.user) {
+            return res.redirect('/login?message=Please login to send messages');
+        }
+
+        const freelancerId = req.params.freelancerId;
+        const freelancerDoc = await getDoc(doc(db, 'freelancers', freelancerId));
+
+        if (!freelancerDoc.exists()) {
+            return res.redirect('/client-dashboard?error=Freelancer not found');
+        }
+
+        const freelancerData = freelancerDoc.data();
+        res.render('pages/client-messaging', {
+            user: req.session.user,
+            freelancer: {
+                id: freelancerId,
+                name: freelancerData.name,
+                title: freelancerData.title || 'Freelancer'
+            }
+        });
+    } catch (error) {
+        console.error('Error loading messaging page:', error);
+        res.redirect('/client-dashboard?error=Error loading messaging page');
+    }
+});
+
 // Add this route to accept freelancer request without authentication middleware
 app.get('/accept-request/:freelancerId/:notificationId', async (req, res) => {
     try {
@@ -897,6 +926,38 @@ app.get('/accept-request/:freelancerId/:notificationId', async (req, res) => {
     }
 });
 
+// Add this new route for freelancer messaging
+app.get('/freelancer-messaging/:clientId', async (req, res) => {
+    if (!req.session.user) {
+        return res.redirect('/login');
+    }
+
+    try {
+        // Get client data from Firestore
+        const clientRef = doc(db, 'users', req.params.clientId);
+        const clientSnap = await getDoc(clientRef);
+
+        if (!clientSnap.exists()) {
+            return res.redirect('/freelancer-dashboard?error=Client not found');
+        }
+
+        const clientData = clientSnap.data();
+        const client = {
+            id: clientSnap.id,
+            name: clientData.firstName + ' ' + clientData.lastName,
+            ...clientData
+        };
+
+        res.render('pages/freelancer-messaging', {
+            user: req.session.user,
+            client: client
+        });
+    } catch (error) {
+        console.error('Error loading messaging page:', error);
+        res.redirect('/freelancer-dashboard?error=Error loading chat');
+    }
+});
+
 // Initialize HTTP server and Socket.IO
 const http = require('http');
 const server = http.createServer(app);
@@ -904,10 +965,59 @@ const io = require('socket.io')(server);
 
 // Socket.IO connection handling
 io.on('connection', (socket) => {
-    console.log('A user connected');
-    
+    console.log('User connected to socket');
+
+    // Handle joining chat room
+    socket.on('joinRoom', ({ clientId, freelancerId }) => {
+        const roomId = `chat_${clientId}_${freelancerId}`;
+        socket.join(roomId);
+        console.log(`Joined room: ${roomId}`);
+    });
+
+    // Handle client messages
+    socket.on('clientMessage', async (data) => {
+        try {
+            const roomId = `chat_${data.clientId}_${data.freelancerId}`;
+            
+            // Emit message to room
+            io.to(roomId).emit('message', {
+                message: data.message,
+                sender: 'client',
+                timestamp: new Date().toISOString()
+            });
+
+            // Send notification to freelancer
+            io.emit('newNotification', {
+                type: 'new_message',
+                freelancerId: data.freelancerId,
+                senderId: data.clientId,
+                senderName: data.clientName,
+                message: data.message,
+                timestamp: new Date().toISOString()
+            });
+
+        } catch (error) {
+            console.error('Error handling client message:', error);
+        }
+    });
+
+    // Handle freelancer messages
+    socket.on('freelancerMessage', async (data) => {
+        try {
+            const roomId = `chat_${data.clientId}_${data.freelancerId}`;
+            
+            io.to(roomId).emit('message', {
+                message: data.message,
+                sender: 'freelancer',
+                timestamp: new Date().toISOString()
+            });
+        } catch (error) {
+            console.error('Error handling freelancer message:', error);
+        }
+    });
+
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        console.log('User disconnected from socket');
     });
 });
 
