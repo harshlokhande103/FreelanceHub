@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - FreeLanceHub</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">FreeLanceHub</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/freelancer-dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/browse-jobs">Browse Jobs</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item ms-2">
+                        <a class="nav-link btn btn-danger text-white" href="/logout">
+                            <i class="fas fa-sign-out-alt me-1"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <% if (locals.error) { %>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
+
+        <!-- Edit Profile Form -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0">Edit Your Profile</h3>
+            </div>
+            <div class="card-body">
+                <form action="/update-profile" method="POST">
+                    <div class="row">
+                        <!-- Basic Information -->
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Basic Information</h4>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="name" name="name" value="<%= userData.name %>" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" value="<%= userData.email %>" disabled>
+                                <small class="text-muted">Email cannot be changed</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" value="<%= userData.phone || '' %>">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="location" class="form-label">Location</label>
+                                <input type="text" class="form-control" id="location" name="location" value="<%= userData.location || '' %>" placeholder="City, Country">
+                            </div>
+                        </div>
+                        
+                        <!-- Professional Information -->
+                        <div class="col-md-6">
+                            <h4 class="mb-3">Professional Information</h4>
+                            
+                            <div class="mb-3">
+                                <label for="skills" class="form-label">Skills</label>
+                                <select class="form-control select2-multiple" id="skills" name="skills" multiple>
+                                    <% const allSkills = ['Web Development', 'Mobile Development', 'UI/UX Design', 'Graphic Design', 'Content Writing', 'Digital Marketing', 'SEO', 'Data Analysis', 'Machine Learning', 'Blockchain', 'DevOps', 'Project Management', 'Video Editing', 'Animation', 'Game Development', 'WordPress', 'Shopify', 'Social Media Management']; %>
+                                    
+                                    <% allSkills.forEach(skill => { %>
+                                        <option value="<%= skill %>" <%= userData.skills && userData.skills.includes(skill) ? 'selected' : '' %>><%= skill %></option>
+                                    <% }); %>
+                                </select>
+                                <small class="text-muted">Select multiple skills that you're proficient in</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="hourlyRate" class="form-label">Hourly Rate ($)</label>
+                                <input type="number" class="form-control" id="hourlyRate" name="hourlyRate" value="<%= userData.hourlyRate || '' %>" placeholder="e.g. 25">
+                            </div>
+                        </div>
+                        
+                        <!-- Bio Section -->
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3">Professional Summary</h4>
+                            
+                            <div class="mb-3">
+                                <label for="bio" class="form-label">Bio</label>
+                                <textarea class="form-control" id="bio" name="bio" rows="4" placeholder="Write a short professional summary about yourself"><%= userData.bio || '' %></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Important Links Section -->
+                        <div class="col-12 mt-4">
+                            <h4 class="mb-3">Important Links</h4>
+                            <p class="text-muted mb-3">Add your professional profiles and portfolio links</p>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="portfolioUrl" class="form-label">
+                                        <i class="fas fa-globe me-1"></i> Portfolio Website / Youtube
+                                    </label>
+                                    <input type="url" class="form-control" id="portfolioUrl" name="portfolioUrl" 
+                                           value="<%= userData.portfolioUrl || '' %>" placeholder="https://yourportfolio.com">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="githubUrl" class="form-label">
+                                        <i class="fab fa-github me-1"></i> GitHub
+                                    </label>
+                                    <input type="url" class="form-control" id="githubUrl" name="githubUrl" 
+                                           value="<%= userData.githubUrl || '' %>" placeholder="https://github.com/yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="linkedinUrl" class="form-label">
+                                        <i class="fab fa-linkedin me-1"></i> LinkedIn
+                                    </label>
+                                    <input type="url" class="form-control" id="linkedinUrl" name="linkedinUrl" 
+                                           value="<%= userData.linkedinUrl || '' %>" placeholder="https://linkedin.com/in/yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="twitterUrl" class="form-label">
+                                        <i class="fab fa-twitter me-1"></i> Twitter
+                                    </label>
+                                    <input type="url" class="form-control" id="twitterUrl" name="twitterUrl" 
+                                           value="<%= userData.twitterUrl || '' %>" placeholder="https://twitter.com/yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="behanceUrl" class="form-label">
+                                        <i class="fab fa-behance me-1"></i> Behance (For Designers)
+                                    </label>
+                                    <input type="url" class="form-control" id="behanceUrl" name="behanceUrl" 
+                                           value="<%= userData.behanceUrl || '' %>" placeholder="https://behance.net/yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="dribbbleUrl" class="form-label">
+                                        <i class="fab fa-dribbble me-1"></i> Dribbble (For Designers)
+                                    </label>
+                                    <input type="url" class="form-control" id="dribbbleUrl" name="dribbbleUrl" 
+                                           value="<%= userData.dribbbleUrl || '' %>" placeholder="https://dribbble.com/yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="mediumUrl" class="form-label">
+                                        <i class="fab fa-medium me-1"></i> Medium (For Writers)
+                                    </label>
+                                    <input type="url" class="form-control" id="mediumUrl" name="mediumUrl" 
+                                           value="<%= userData.mediumUrl || '' %>" placeholder="https://medium.com/@yourusername">
+                                </div>
+                                
+                                <div class="col-md-6 mb-3">
+                                    <label for="customUrl" class="form-label">
+                                        <i class="fas fa-link me-1"></i> Other Link
+                                    </label>
+                                    <input type="url" class="form-control" id="customUrl" name="customUrl" 
+                                           value="<%= userData.customUrl || '' %>" placeholder="https://example.com">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Education & Experience -->
+                        <div class="col-md-6 mt-4">
+                            <h4 class="mb-3">Education</h4>
+                            
+                            <div class="mb-3">
+                                <label for="education" class="form-label">Education Background</label>
+                                <textarea class="form-control" id="education" name="education" rows="4" placeholder="List your educational qualifications"><%= userData.education || '' %></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mt-4">
+                            <h4 class="mb-3">Experience</h4>
+                            
+                            <div class="mb-3">
+                                <label for="experience" class="form-label">Work Experience</label>
+                                <textarea class="form-control" id="experience" name="experience" rows="4" placeholder="Describe your relevant work experience"><%= userData.experience || '' %></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="col-12 mt-4 text-end">
+                            <a href="/freelancer-dashboard" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i> Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Select2 for skills multi-select
+            $('.select2-multiple').select2({
+                placeholder: "Select your skills",
+                allowClear: true,
+                tags: true
+            });
+        });
+    </script>
+</body>
+</html>

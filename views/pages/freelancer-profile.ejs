@@ -47,8 +47,10 @@
         <% } %>
         
         <div class="row">
+            <!-- Left Sidebar -->
             <div class="col-md-4">
-                <div class="card mb-4">
+                <!-- Profile Card -->
+                <div class="card mb-4 shadow-sm">
                     <div class="card-body text-center">
                         <div class="mb-3">
                             <img src="<%= freelancer.profilePicture || 'https://via.placeholder.com/150' %>" 
@@ -56,6 +58,18 @@
                         </div>
                         <h3 class="card-title"><%= freelancer.name %></h3>
                         <p class="text-muted"><%= freelancer.title || 'Freelancer' %></p>
+                        <div class="d-flex justify-content-center">
+                            <% if (freelancer.rating) { %>
+                                <div class="me-3">
+                                    <div class="d-flex align-items-center">
+                                        <% for(let i = 1; i <= 5; i++) { %>
+                                            <i class="<%= i <= Math.round(freelancer.rating) ? 'fas' : 'far' %> fa-star text-warning"></i>
+                                        <% } %>
+                                    </div>
+                                    <small class="text-muted"><%= freelancer.rating.toFixed(1) %> (<%= freelancer.reviewCount || 0 %> reviews)</small>
+                                </div>
+                            <% } %>
+                        </div>
                         
                         <div class="d-grid gap-2 mt-4">
                             <% if (locals.isAccepted && isAccepted) { %>
@@ -74,61 +88,180 @@
                     </div>
                 </div>
                 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Skills</h5>
+                <!-- Skills Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-tools me-2"></i>Skills</h5>
                     </div>
                     <div class="card-body">
                         <% if (freelancer.skills && freelancer.skills.length > 0) { %>
-                            <% freelancer.skills.forEach(skill => { %>
-                                <span class="badge bg-secondary me-1 mb-2"><%= skill %></span>
-                            <% }) %>
+                            <div class="d-flex flex-wrap">
+                                <% freelancer.skills.forEach(skill => { %>
+                                    <span class="badge bg-primary me-2 mb-2 p-2"><%= skill %></span>
+                                <% }) %>
+                            </div>
                         <% } else { %>
                             <p class="text-muted">No skills listed</p>
                         <% } %>
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Contact Information</h5>
+                <!-- Contact Information Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0"><i class="fas fa-address-card me-2"></i>Contact Information</h5>
                     </div>
                     <div class="card-body">
-                        <p><i class="fas fa-envelope me-2"></i> <%= freelancer.email %></p>
-                        <% if (freelancer.phone) { %>
-                            <p><i class="fas fa-phone me-2"></i> <%= freelancer.phone %></p>
-                        <% } %>
-                        <% if (freelancer.location) { %>
-                            <p><i class="fas fa-map-marker-alt me-2"></i> <%= freelancer.location %></p>
-                        <% } %>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item px-0">
+                                <i class="fas fa-envelope me-2 text-primary"></i>
+                                <%= freelancer.email %>
+                            </li>
+                            <% if (freelancer.phone) { %>
+                                <li class="list-group-item px-0">
+                                    <i class="fas fa-phone me-2 text-success"></i>
+                                    <%= freelancer.phone %>
+                                </li>
+                            <% } %>
+                            <% if (freelancer.location) { %>
+                                <li class="list-group-item px-0">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                    <%= freelancer.location %>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Important Links Card -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-link me-2"></i>Important Links</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <% if (freelancer.portfolioUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.portfolioUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fas fa-globe me-2 text-primary"></i>
+                                        <span>Portfolio Website / Youtube</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.githubUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.githubUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-github me-2 text-dark"></i>
+                                        <span>GitHub</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.linkedinUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.linkedinUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-linkedin me-2 text-primary"></i>
+                                        <span>LinkedIn</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.twitterUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.twitterUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-twitter me-2 text-info"></i>
+                                        <span>Twitter</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.behanceUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.behanceUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-behance me-2 text-primary"></i>
+                                        <span>Behance</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.dribbbleUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.dribbbleUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-dribbble me-2 text-danger"></i>
+                                        <span>Dribbble</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.mediumUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.mediumUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fab fa-medium me-2 text-dark"></i>
+                                        <span>Medium</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (freelancer.customUrl) { %>
+                                <li class="list-group-item px-0">
+                                    <a href="<%= freelancer.customUrl %>" target="_blank" class="d-flex align-items-center text-decoration-none">
+                                        <i class="fas fa-link me-2 text-secondary"></i>
+                                        <span>Other Link</span>
+                                        <i class="fas fa-external-link-alt ms-auto text-muted small"></i>
+                                    </a>
+                                </li>
+                            <% } %>
+                            
+                            <% if (!freelancer.portfolioUrl && !freelancer.githubUrl && !freelancer.linkedinUrl && 
+                                  !freelancer.twitterUrl && !freelancer.behanceUrl && !freelancer.dribbbleUrl && 
+                                  !freelancer.mediumUrl && !freelancer.customUrl) { %>
+                                <li class="list-group-item px-0 text-muted">
+                                    <i class="fas fa-info-circle me-2"></i> No links provided
+                                </li>
+                            <% } %>
+                        </ul>
                     </div>
                 </div>
             </div>
             
+            <!-- Main Content -->
             <div class="col-md-8">
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">About</h5>
+                <!-- About Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-user me-2"></i>About</h4>
                     </div>
                     <div class="card-body">
                         <% if (freelancer.bio) { %>
                             <p><%= freelancer.bio %></p>
                         <% } else { %>
-                            <p class="text-muted">No bio available</p>
+                            <p class="text-muted">No bio provided</p>
                         <% } %>
                     </div>
                 </div>
                 
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5 class="mb-0">Work Experience</h5>
+                <!-- Experience Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-briefcase me-2"></i>Work Experience</h4>
                     </div>
                     <div class="card-body">
-                        <% if (freelancer.experience && freelancer.experience.length > 0) { %>
+                        <% if (freelancer.experience && Array.isArray(freelancer.experience) && freelancer.experience.length > 0) { %>
                             <% freelancer.experience.forEach(exp => { %>
                                 <div class="mb-4">
-                                    <h5><%= exp.title %></h5>
-                                    <p class="text-muted"><%= exp.company %> • <%= exp.startDate %> - <%= exp.endDate || 'Present' %></p>
+                                    <div class="d-flex justify-content-between">
+                                        <h5><%= exp.title %></h5>
+                                        <span class="badge bg-secondary"><%= exp.startDate %> - <%= exp.endDate || 'Present' %></span>
+                                    </div>
+                                    <h6 class="text-muted"><%= exp.company %></h6>
                                     <p><%= exp.description %></p>
                                 </div>
                             <% }) %>
@@ -138,23 +271,87 @@
                     </div>
                 </div>
                 
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Education</h5>
+                <!-- Education Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Education</h4>
                     </div>
                     <div class="card-body">
-                        <% if (freelancer.education && freelancer.education.length > 0) { %>
+                        <% if (freelancer.education && Array.isArray(freelancer.education) && freelancer.education.length > 0) { %>
                             <% freelancer.education.forEach(edu => { %>
-                                <div class="mb-3">
-                                    <h5><%= edu.degree %></h5>
-                                    <p class="text-muted"><%= edu.institution %> • <%= edu.startYear %> - <%= edu.endYear || 'Present' %></p>
-                                    <% if (edu.description) { %>
-                                        <p><%= edu.description %></p>
-                                    <% } %>
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between">
+                                        <h5><%= edu.degree %></h5>
+                                        <span class="badge bg-secondary"><%= edu.startYear %> - <%= edu.endYear || 'Present' %></span>
+                                    </div>
+                                    <h6 class="text-muted"><%= edu.institution %></h6>
+                                    <p><%= edu.description %></p>
                                 </div>
                             <% }) %>
                         <% } else { %>
-                            <p class="text-muted">No education listed</p>
+                            <p class="text-muted">No education details listed</p>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Portfolio Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-project-diagram me-2"></i>Portfolio</h4>
+                    </div>
+                    <div class="card-body">
+                        <% if (freelancer.portfolio && Array.isArray(freelancer.portfolio) && freelancer.portfolio.length > 0) { %>
+                            <div class="row">
+                                <% freelancer.portfolio.forEach(project => { %>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="card h-100">
+                                            <% if (project.image) { %>
+                                                <img src="<%= project.image %>" class="card-img-top" alt="<%= project.title %>">
+                                            <% } %>
+                                            <div class="card-body">
+                                                <h5 class="card-title"><%= project.title %></h5>
+                                                <p class="card-text"><%= project.description %></p>
+                                                <% if (project.url) { %>
+                                                    <a href="<%= project.url %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-external-link-alt me-1"></i> View Project
+                                                    </a>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="text-muted">No portfolio projects listed</p>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <!-- Reviews Section -->
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h4 class="mb-0"><i class="fas fa-star me-2"></i>Client Reviews</h4>
+                    </div>
+                    <div class="card-body">
+                        <% if (freelancer.reviews && Array.isArray(freelancer.reviews) && freelancer.reviews.length > 0) { %>
+                            <% freelancer.reviews.forEach(review => { %>
+                                <div class="mb-4 pb-4 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div>
+                                            <h5 class="mb-0"><%= review.clientName %></h5>
+                                            <small class="text-muted"><%= new Date(review.date).toLocaleDateString() %></small>
+                                        </div>
+                                        <div>
+                                            <% for(let i = 1; i <= 5; i++) { %>
+                                                <i class="<%= i <= review.rating ? 'fas' : 'far' %> fa-star text-warning"></i>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                    <p><%= review.comment %></p>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <p class="text-muted">No reviews yet</p>
                         <% } %>
                     </div>
                 </div>

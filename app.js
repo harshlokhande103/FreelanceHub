@@ -195,6 +195,122 @@ app.post('/login', async (req, res) => {
     }
 }); // Added closing bracket and semicolon for login route
 
+// ... existing code ...
+
+// Edit Profile Page Route
+app.get('/edit-profile', async (req, res) => {
+    try {
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+
+        // Get user data from Firestore
+        const userRef = doc(db, 'freelancers', req.session.user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            return res.redirect('/freelancer-dashboard');
+        }
+        
+        const userData = userDoc.data();
+        
+        // Render the edit profile page with user data
+        res.render('pages/edit-profile', {
+            user: req.session.user,
+            userData: userData
+        });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.redirect('/freelancer-dashboard');
+    }
+});
+
+// Update Profile Route
+app.post('/update-profile', async (req, res) => {
+    try {
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+        
+        const { name, phone, location, bio, skills, hourlyRate, education, experience,
+            portfolioUrl, githubUrl, linkedinUrl, twitterUrl, behanceUrl, dribbbleUrl, mediumUrl, customUrl } = req.body;
+        
+        // Process skills array
+        let skillsArray = [];
+        if (Array.isArray(skills)) {
+            skillsArray = skills;
+        } else if (typeof skills === 'string') {
+            skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
+        }
+        
+        // Update user data in Firestore
+        const userRef = doc(db, 'freelancers', req.session.user.uid);
+        
+        await updateDoc(userRef, {
+            name: name,
+            phone: phone || '',
+            location: location || '',
+            bio: bio || '',
+            skills: skillsArray,
+            hourlyRate: hourlyRate || '',
+            education: education || '',
+            experience: experience || '',
+            portfolioUrl: portfolioUrl || '',
+            githubUrl: githubUrl || '',
+            linkedinUrl: linkedinUrl || '',
+            twitterUrl: twitterUrl || '',
+            behanceUrl: behanceUrl || '',
+            dribbbleUrl: dribbbleUrl || '',
+            mediumUrl: mediumUrl || '',
+            customUrl: customUrl || '',
+            updatedAt: new Date().toISOString()
+        });
+        
+        // Update session data
+        req.session.user.name = name;
+        req.session.user.skills = skillsArray;
+        
+        // Redirect to dashboard with success message
+        res.redirect('/freelancer-dashboard?message=Profile updated successfully');
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.redirect('/edit-profile?error=Failed to update profile');
+    }
+});
+
+// View Profile Page Route
+app.get('/view-profile', async (req, res) => {
+    try {
+        // Check if user is logged in
+        if (!req.session.user) {
+            return res.redirect('/login');
+        }
+
+        // Get user data from Firestore
+        const userRef = doc(db, 'freelancers', req.session.user.uid);
+        const userDoc = await getDoc(userRef);
+        
+        if (!userDoc.exists()) {
+            return res.redirect('/freelancer-dashboard');
+        }
+        
+        const userData = userDoc.data();
+        
+        // Render the view profile page with user data
+        res.render('pages/view-profile', {
+            user: req.session.user,
+            userData: userData
+        });
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        res.redirect('/freelancer-dashboard');
+    }
+});
+
+// ... existing code ...
+
 // Add middleware to protect dashboard route
 const requireClientAuth = (req, res, next) => {
     if (!req.session.user) {
@@ -348,7 +464,7 @@ app.get('/freelancer-profile/:id', requireClientAuth, async (req, res) => {
         
         // Render the freelancer profile page
         res.render('pages/freelancer-profile', {
-            user: req.session.user,
+            user: req.user,
             freelancer: {
                 id: freelancerId,
                 ...freelancerData
