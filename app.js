@@ -342,6 +342,8 @@ app.get('/client-dashboard', requireClientAuth, async (req, res) => {
             });
         });
 
+        
+
         // Calculate job statistics for overview
         const jobStats = {
             total: jobs.length,
@@ -419,17 +421,55 @@ app.get('/freelancer-profile/:id', requireClientAuth, async (req, res) => {
     try {
         const freelancerId = req.params.id;
         const clientId = req.session.user.uid;
-        
-        // Get freelancer data from Firestore
+
+        let freelancerData = null;
+
+        // ✅ Try to fetch from Firestore
         const freelancerDoc = await getDoc(doc(db, 'freelancers', freelancerId));
-        
-        if (!freelancerDoc.exists()) {
-            return res.redirect('/client-dashboard?message=Freelancer not found');
+
+        if (freelancerDoc.exists()) {
+            const data = freelancerDoc.data();
+            freelancerData = {
+                id: freelancerId,
+                ...data
+            };
+        } else {
+            // ⚠️ If not found in Firestore, try MongoDB
+            const freelancer = await Freelancer.findById(freelancerId);
+            if (!freelancer) {
+                return res.redirect('/client-dashboard?message=Freelancer not found');
+            }
+
+            freelancerData = {
+                id: freelancer._id,
+                name: `${freelancer.firstName} ${freelancer.lastName}`,
+                firstName: freelancer.firstName,
+                lastName: freelancer.lastName,
+                email: freelancer.email,
+                title: freelancer.title || 'Freelancer',
+                bio: freelancer.bio || '',
+                skills: Array.isArray(freelancer.skills) ? freelancer.skills : [],
+                profilePicture: freelancer.profilePicture || '',
+                rating: freelancer.rating || 0,
+                reviewCount: freelancer.reviewCount || 0,
+                location: freelancer.location || '',
+                phone: freelancer.phone || '',
+                experience: Array.isArray(freelancer.experience) ? freelancer.experience : [],
+                education: Array.isArray(freelancer.education) ? freelancer.education : [],
+                portfolio: Array.isArray(freelancer.portfolio) ? freelancer.portfolio : [],
+                reviews: Array.isArray(freelancer.reviews) ? freelancer.reviews : [],
+                portfolioUrl: freelancer.portfolioUrl || '',
+                githubUrl: freelancer.githubUrl || '',
+                linkedinUrl: freelancer.linkedinUrl || '',
+                twitterUrl: freelancer.twitterUrl || '',
+                behanceUrl: freelancer.behanceUrl || '',
+                dribbbleUrl: freelancer.dribbbleUrl || '',
+                mediumUrl: freelancer.mediumUrl || '',
+                customUrl: freelancer.customUrl || ''
+            };
         }
-        
-        const freelancerData = freelancerDoc.data();
-        
-        // Check if there's a notification for this freelancer
+
+        // 🔔 Fetch notification (if Firestore is used)
         let notification = null;
         const notificationsRef = collection(db, 'notifications');
         const notificationQuery = query(
@@ -437,7 +477,6 @@ app.get('/freelancer-profile/:id', requireClientAuth, async (req, res) => {
             where('clientId', '==', clientId),
             where('freelancerId', '==', freelancerId)
         );
-        
         const notificationsSnapshot = await getDocs(notificationQuery);
         if (!notificationsSnapshot.empty) {
             const notificationDoc = notificationsSnapshot.docs[0];
@@ -446,8 +485,8 @@ app.get('/freelancer-profile/:id', requireClientAuth, async (req, res) => {
                 ...notificationDoc.data()
             };
         }
-        
-        // Check if there's an active connection between client and freelancer
+
+        // 🔗 Check connection (only relevant to Firestore)
         let isAccepted = false;
         const connectionsRef = collection(db, 'connections');
         const connectionQuery = query(
@@ -456,28 +495,26 @@ app.get('/freelancer-profile/:id', requireClientAuth, async (req, res) => {
             where('freelancerId', '==', freelancerId),
             where('status', '==', 'active')
         );
-        
         const connectionsSnapshot = await getDocs(connectionQuery);
         if (!connectionsSnapshot.empty) {
             isAccepted = true;
         }
-        
-        // Render the freelancer profile page
+
+        // ✅ Render profile
         res.render('pages/freelancer-profile', {
-            user: req.user,
-            freelancer: {
-                id: freelancerId,
-                ...freelancerData
-            },
+            user: req.user || { firstName: 'Guest', lastName: '' },
+            freelancer: freelancerData,
             notification,
             isAccepted,
-            message: req.query.message || null
+            message: req.query.message || (req.flash ? req.flash('success') : null)
         });
     } catch (error) {
         console.error('Error fetching freelancer profile:', error);
-        res.redirect('/client-dashboard?message=Error fetching freelancer profile');
+        if (req.flash) req.flash('error', 'An error occurred while loading the freelancer profile');
+        res.redirect('/client-dashboard');
     }
 });
+
 
 // Add the show-interest route
 app.get('/show-interest/:jobId', requireFreelancerAuth, async (req, res) => {
