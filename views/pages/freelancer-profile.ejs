@@ -251,22 +251,25 @@
                 <!-- Experience Section -->
                 <div class="card mb-4 shadow-sm">
                     <div class="card-header bg-light">
-                        <h4 class="mb-0"><i class="fas fa-briefcase me-2"></i>Work Experience</h4>
+                        <h4 class="mb-0"><i class="fas fa-briefcase me-2"></i>Experience</h4>
                     </div>
                     <div class="card-body">
-                        <% if (freelancer.experience && Array.isArray(freelancer.experience) && freelancer.experience.length > 0) { %>
-                            <% freelancer.experience.forEach(exp => { %>
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between">
-                                        <h5><%= exp.title %></h5>
-                                        <span class="badge bg-secondary"><%= exp.startDate %> - <%= exp.endDate || 'Present' %></span>
+                        <% if (freelancer.experience && freelancer.experience.length > 0) { %>
+                            <% if (Array.isArray(freelancer.experience)) { %>
+                                <% freelancer.experience.forEach(exp => { %>
+                                    <!-- Display experience as array items -->
+                                    <div class="mb-3 pb-3 border-bottom">
+                                        <h5><%= exp.title %> at <%= exp.company %></h5>
+                                        <p class="text-muted"><%= exp.duration %></p>
+                                        <p><%= exp.description %></p>
                                     </div>
-                                    <h6 class="text-muted"><%= exp.company %></h6>
-                                    <p><%= exp.description %></p>
-                                </div>
-                            <% }) %>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- Display experience as text -->
+                                <p><%= freelancer.experience %></p>
+                            <% } %>
                         <% } else { %>
-                            <p class="text-muted">No work experience listed</p>
+                            <p class="text-muted">No experience listed</p>
                         <% } %>
                     </div>
                 </div>
@@ -277,19 +280,22 @@
                         <h4 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Education</h4>
                     </div>
                     <div class="card-body">
-                        <% if (freelancer.education && Array.isArray(freelancer.education) && freelancer.education.length > 0) { %>
-                            <% freelancer.education.forEach(edu => { %>
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between">
-                                        <h5><%= edu.degree %></h5>
-                                        <span class="badge bg-secondary"><%= edu.startYear %> - <%= edu.endYear || 'Present' %></span>
+                        <% if (freelancer.education && freelancer.education.length > 0) { %>
+                            <% if (Array.isArray(freelancer.education)) { %>
+                                <% freelancer.education.forEach(edu => { %>
+                                    <!-- Display education as array items -->
+                                    <div class="mb-3 pb-3 border-bottom">
+                                        <h5><%= edu.degree %> - <%= edu.institution %></h5>
+                                        <p class="text-muted"><%= edu.duration %></p>
+                                        <p><%= edu.description %></p>
                                     </div>
-                                    <h6 class="text-muted"><%= edu.institution %></h6>
-                                    <p><%= edu.description %></p>
-                                </div>
-                            <% }) %>
+                                <% }); %>
+                            <% } else { %>
+                                <!-- Display education as text -->
+                                <p><%= freelancer.education %></p>
+                            <% } %>
                         <% } else { %>
-                            <p class="text-muted">No education details listed</p>
+                            <p class="text-muted">No education listed</p>
                         <% } %>
                     </div>
                 </div>
